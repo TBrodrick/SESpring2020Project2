@@ -2,6 +2,7 @@ package com.company;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.sql.SQLException;
 import java.util.*;
 
 /**
@@ -110,7 +111,7 @@ public class Menu {
      *
      * @return the created addressbook
      */
-    public static AddressBook loadFromFile()
+    public static AddressBook loadFromFile() throws SQLException, ClassNotFoundException
     {
         AddressBook ab = new AddressBook();
         ArrayList<String> al = new ArrayList<String>();
@@ -180,7 +181,7 @@ public class Menu {
      * @param ab AddressBook to be manipulated
      * @return the updated address book
      */
-    public static AddressBook removeEntry(AddressBook ab)
+    public static AddressBook removeEntry(AddressBook ab) throws SQLException, ClassNotFoundException
     {
         // prompt for last name (or partial)
         Scanner myObj = new Scanner(System.in);
@@ -229,7 +230,7 @@ public class Menu {
      *
      * @param ab the addressbook used to input entries.
      */
-    public static void menuLoop(AddressBook ab)
+    public static void menuLoop(AddressBook ab) throws SQLException, ClassNotFoundException
     {
         boolean quit = false;
         while(!quit)

@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;  // Import the File class
 import java.io.FileNotFoundException;  // Import this class to handle errors
+import java.sql.SQLException;
 import java.util.Scanner;
 import java.util.ArrayList;
 /**
@@ -16,9 +17,11 @@ public class AddressBookApplication {
     /**
      * @param args the command line arguments
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException, ClassNotFoundException
+    {
 
         AddressBook ab = new AddressBook();
+        ab.loadFromDatabase();
         inuit(ab);
         //Menu menu = new Menu();
         //menu.menuLoop(ab);
@@ -31,7 +34,7 @@ public class AddressBookApplication {
 
     @param ab the addressbook used to input entries.
 */
-    public static void initAddressBookExercise(AddressBook ab)
+    public static void initAddressBookExercise(AddressBook ab) throws SQLException, ClassNotFoundException
     {
         AddressEntry ae1 = new AddressEntry("A", "B", "C", "D", "E", 0, "F", "G");
         AddressEntry ae2 = new AddressEntry("H", "I", "J", "K", "L", 1, "O", "P");
@@ -46,7 +49,7 @@ public class AddressBookApplication {
 
     @param filename the name of the file
 */
-    public static void init(String filename)
+    public static void init(String filename) throws SQLException, ClassNotFoundException
     {
         AddressBook ab = new AddressBook();
         ArrayList<String> al = new ArrayList<String>();
@@ -75,7 +78,7 @@ public class AddressBookApplication {
         ab.list();
     }
 
-    public static void inuit(AddressBook ab)
+    public static void inuit(AddressBook ab) throws SQLException, ClassNotFoundException
     {
         JFrame f = new JFrame("Address Book");
         f.setSize(500,600);
@@ -201,7 +204,13 @@ public class AddressBookApplication {
                         newEntry.setEmail(ef.getText());
                         newEntry.setTelephone(pf.getText());
 
-                        ab.add(newEntry);
+                        try {
+                            ab.add(newEntry);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
                         addF.setVisible(false);
                     }
                 });

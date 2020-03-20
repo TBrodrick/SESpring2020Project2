@@ -1,12 +1,119 @@
 
 package com.company;
 
+import java.sql.*;
+
 /**
  *
  * @author Ryan Johnson
  */
 public class AddressBook {
     private AddressEntry[] addressEntryList;
+    private static final String conString = "jdbc:oracle:thin:mcs1009/cMEY1Myo@adcsdb01.csueastbay.edu:1521/mcspdb.ad.csueastbay.edu";
+
+    public void loadFromDatabase() throws SQLException, ClassNotFoundException
+    {
+        Class.forName ("oracle.jdbc.OracleDriver");
+        Connection conn = DriverManager.getConnection(conString);
+        Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE,
+                ResultSet.CONCUR_READ_ONLY);
+        ResultSet rset = stmt.executeQuery("SELECT * FROM ADDRESSENTRYTABLE");
+        int rows = 0;
+        if (rset.last()) {
+            rows = rset.getRow();
+            rset.beforeFirst();
+        }
+
+        addressEntryList = new AddressEntry[rows];
+        for(int i = 0; i < rows; i++)
+        {
+            rset.next();
+            addressEntryList[i] = new AddressEntry(rset.getString(1), rset.getString(2), rset.getString(3), rset.getString(4), rset.getString(5), Integer.parseInt(rset.getString(6)), rset.getString(7), rset.getString(8));
+        }
+
+        rset.close();
+
+        stmt.close();
+
+        conn.close();
+
+        sort();
+    }
+
+    public void addToDataBase(AddressEntry ae) throws SQLException, ClassNotFoundException
+    {
+
+
+        // Load the Oracle JDBC driver
+        Class.forName ("oracle.jdbc.OracleDriver"); //name of driver may change w/ versions
+
+        //check Oracle documentation online
+        // Or could do DriverManager.registerDriver (new oracle.jdbc.OracleDriver());
+
+
+
+        // Connect to the database
+        // generic host url = jdbc:oracle:thin:login/password@host:port/SID for Oracle SEE Account INFO you
+        // were given by our CS tech in an email ---THIS WILL BE DIFFERENT
+        //jdbc:oracle:thin:@//adcsdb01.csueastbay.edu:1521/mcspdb.ad.csueastbay.edu
+        Connection conn = DriverManager.getConnection(conString);
+
+        // Create a Statement
+        Statement stmt = conn.createStatement ();
+
+
+        // Select the all (*) from the table JAVATEST
+        String entryString1 = ae.getFirstName() + "," + ae.getLastName() + "," + ae.getStreet() + "," + ae.getCity() + "," + ae.getState() + "," + Integer.toString(ae.getZip()) + "," + ae.getTelephone() + "," + ae.getEmail();
+        String entryString2 = "INSERT INTO ADDRESSENTRYTABLE VALUES(" + entryString1 + ")";
+        stmt.executeUpdate(entryString2);
+        ResultSet rset = stmt.executeQuery("SELECT * FROM ADDRESSENTRYTABLE");
+
+
+
+        System.out.println(rset);
+
+
+        // Iterate through the result and print the employee names
+
+        while (rset.next()) //get next row of table returned
+
+        {
+
+            for(int i=1; i<=rset.getMetaData().getColumnCount(); i++) //visit each column
+
+                System.out.print(rset.getString(i) + " | ");
+
+            System.out.println(" ");
+
+            System.out.println("========================================");
+
+        }
+
+
+
+        //Close access to everything...will otherwise happen when disconnect
+
+        // from database.
+
+        rset.close();
+
+        stmt.close();
+
+        conn.close();
+
+    }
+
+    public void removeFromDatabase(String first, String last) throws SQLException, ClassNotFoundException
+    {
+        Class.forName ("oracle.jdbc.OracleDriver");
+        Connection conn = DriverManager.getConnection(conString);
+        Statement stmt = conn.createStatement();
+        String removeString = "DELETE FROM ADDRESSENTRYTABLE WHERE FIRSTNAME = '" + first + "' AND LASTNAME = '" + last + "'";
+        stmt.executeUpdate(removeString);
+        stmt.close();
+        conn.close();
+    }
+
 
     public void list()
     {
@@ -18,10 +125,9 @@ public class AddressBook {
     }
 
     /** method to add an address entry
-    @param ae the address entry to be added
-    */
-    public void add(AddressEntry ae)
-    {
+     @param ae the address entry to be added
+     */
+    public void add(AddressEntry ae) throws SQLException, ClassNotFoundException {
         if(addressEntryList == null)
         {
             addressEntryList = new AddressEntry[1];
@@ -37,13 +143,14 @@ public class AddressBook {
             }
             addressEntryList[temp.length] = ae;
         }
+        addToDataBase(ae);
     }
 
     /**
      *
      * @param index of entry to be removed
      */
-    public void remove(int index)
+    public void remove(int index) throws SQLException, ClassNotFoundException
     {
         AddressEntry[] temp = addressEntryList;
         addressEntryList = new AddressEntry[temp.length-1];
@@ -53,6 +160,7 @@ public class AddressBook {
             if(i == index)
             {
                 found = true;
+                removeFromDatabase(temp[i].getFirstName(), temp[i].getLastName());
             }
             else if(found)
             {
@@ -63,6 +171,7 @@ public class AddressBook {
                 addressEntryList[i] = temp[i];
             }
         }
+
     }
 
     /**
