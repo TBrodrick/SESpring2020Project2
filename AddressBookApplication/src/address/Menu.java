@@ -210,7 +210,7 @@ public class Menu {
         String term = myObj.nextLine();
 
         // create a list of ints (indexes) to match the indexes of the entries
-        int[] indexes = ab.search(term);
+        int[] indexes = ab.searchByLast(term);
 
         if(indexes.length > 0)
         {
@@ -280,7 +280,7 @@ public class Menu {
                 case 4:
                     System.out.println("Enter search string.\n");
                     String choice2 = myObj.nextLine();
-                    int[] indexes = ab.search(choice2);
+                    int[] indexes = ab.searchByLast(choice2);
                     System.out.println("Found the following entries;\n");
                     for(int i = 0; i < indexes.length; i++)
                     {

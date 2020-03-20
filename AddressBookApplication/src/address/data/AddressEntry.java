@@ -61,7 +61,7 @@ public class AddressEntry {
      */
     public String toString()
     {
-        String result = "First Name: " + getFirstName() + ", Last Name: " + getLastName() + ", Street: "  + getStreet() + ", City: "  + getCity() + ", State: " + getState() + ", ZIP: " + getZip() + ", Telephone: " + getTelephone() + ", Email: " + getEmail() + ".\n";
+        String result = "First Name: " + getFirstName() + ", Last Name: " + getLastName() + ", Street: "  + getStreet() + ", City: "  + getCity() + ", State: " + getState() + ", ZIP: " + getZip() + ", Telephone: " + getTelephone() + ", Email: " + getEmail() + ", ID: " + getID() + ".\n";
         return result;
     }
 

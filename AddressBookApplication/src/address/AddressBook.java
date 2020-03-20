@@ -132,23 +132,47 @@ public class AddressBook {
     /** method to add an address entry
      @param ae the address entry to be added
      */
-    public void add(AddressEntry ae) throws SQLException, ClassNotFoundException {
-        if(addressEntryList == null)
+    public boolean add(AddressEntry ae) throws SQLException, ClassNotFoundException {
+        try
         {
-            addressEntryList = new AddressEntry[1];
-            addressEntryList[0] = ae;
-        }
-        else
-        {
-            AddressEntry[] temp = addressEntryList;
-            addressEntryList = new AddressEntry[temp.length+1];
-            for(int i = 0; i < temp.length; i++)
+            boolean uniqueID = true;
+            for(int i = 0; i < addressEntryList.length; i++)
             {
-                addressEntryList[i] = temp[i];
+                if(ae.getID() == addressEntryList[i].getID())
+                {
+                    uniqueID = false;
+                }
             }
-            addressEntryList[temp.length] = ae;
+            if(uniqueID)
+            {
+                if(addressEntryList == null)
+                {
+                    addressEntryList = new AddressEntry[1];
+                    addressEntryList[0] = ae;
+                }
+                else
+                {
+                    AddressEntry[] temp = addressEntryList;
+                    addressEntryList = new AddressEntry[temp.length+1];
+                    for(int i = 0; i < temp.length; i++)
+                    {
+                        addressEntryList[i] = temp[i];
+                    }
+                    addressEntryList[temp.length] = ae;
+                }
+                addToDataBase(ae);
+                return true;
+            }
+            else
+            {
+                throw new Exception("You cannot add an already existing ID.");
+            }
         }
-        addToDataBase(ae);
+        catch(Exception e)
+        {
+            System.out.println(e);
+        }
+        return false;
     }
 
     /**
@@ -194,7 +218,7 @@ public class AddressBook {
      * @param input is the last name to be searched
      * @return the indexes of the matching last names
      */
-    public int[] search(String input)
+    public int[] searchByLast(String input)
     {
         int count = 0;
         for(int i = 0; i < addressEntryList.length; i++)
@@ -216,6 +240,23 @@ public class AddressBook {
         }
 
         return indexes;
+    }
+
+    /**
+     *
+     * @param input is the id to be searched
+     * @return the indexes of the matching id
+     */
+    public int searchByID(int input)
+    {
+        for(int i = 0; i < addressEntryList.length; i++)
+        {
+            if(addressEntryList[i].getID() == input)
+            {
+                return i;
+            }
+        }
+        return -1;
     }
 
     public void sort()

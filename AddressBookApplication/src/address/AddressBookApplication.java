@@ -3,6 +3,7 @@ package address;
 import address.data.Address;
 import address.data.AddressEntry;
 import address.data.Name;
+import javafx.geometry.HorizontalDirection;
 
 import javax.swing.*;
 import java.awt.*;
@@ -91,17 +92,19 @@ public class AddressBookApplication {
     public static void inuit(AddressBook ab) throws SQLException, ClassNotFoundException
     {
         JFrame f = new JFrame("Address Book");
-        f.setSize(500,600);
+        f.setSize(650,500);
         f.setVisible(true);
+        f.setResizable(false);
 
-        JPanel jp = new JPanel();
-        jp.setLayout(new GridLayout(4,1,5,2));
+        JPanel jp = new JPanel(new GridLayout(4, 4));
         f.add(jp);
         jp.setVisible(true);
+
 
         JButton addButton = new JButton("Add");
         JButton displayButton = new JButton("Display");
         JButton removeButton = new JButton("Remove");
+        JButton findButton = new JButton("Find");
 
         DefaultListModel<String> listModel = new DefaultListModel<>();
         JList<String> displayList = new JList<String>(listModel);
@@ -115,6 +118,7 @@ public class AddressBookApplication {
         jp.add(addButton);
         jp.add(removeButton);
         jp.add(displayButton);
+        jp.add(findButton);
         jp.add(scrollDisplay);
 
         addButton.setSize(125,100);
@@ -123,19 +127,21 @@ public class AddressBookApplication {
         displayButton.setLocation(170,350);
         removeButton.setSize(125,100);
         removeButton.setLocation(315,350);
-        scrollDisplay.setSize(400, 300);
+        findButton.setSize(125, 100);
+        findButton.setLocation(460, 350);
+        scrollDisplay.setSize(525, 300);
         scrollDisplay.setLocation(25,25);
 
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 JFrame addF = new JFrame();                   //consider internal frame
-                addF.setLayout(new BorderLayout());
                 addF.setSize(400,500);
                 addF.setVisible(true);
+                addF.setResizable(false);
 
                 JPanel aPanel = new JPanel();
-                aPanel.setLayout(new GridLayout(10,2));
+                aPanel.setLayout(new GridLayout(10,2, 5, 10));
                 addF.add(aPanel);
                 aPanel.setVisible(true);
 
@@ -205,14 +211,19 @@ public class AddressBookApplication {
                         newEntry.setEmail(ef.getText());
                         newEntry.setTelephone(pf.getText());
                         newEntry.setID(Integer.parseInt(idf.getText()));
-
+                        listModel.clear();
+                        boolean added = false;
                         try {
-                            ab.add(newEntry);
+                            added = ab.add(newEntry);
                         } catch (SQLException e) {
                             e.printStackTrace();
                         } catch (ClassNotFoundException e) {
                             e.printStackTrace();
                         }
+                        if(added)
+                            listModel.addElement("Add successful!");
+                        else
+                            listModel.addElement("That ID already exists.");
                         addF.setVisible(false);
                     }
                 });
@@ -252,25 +263,83 @@ public class AddressBookApplication {
             @Override
             public void actionPerformed(ActionEvent actionEvent) {
                 try {
-                    if(ab.size() > displayList.getSelectedIndex())
-                    ab.remove(displayList.getSelectedIndex());
-                    else
+                    String[] line = listModel.getElementAt(displayList.getSelectedIndex()).split(",");
+                    if(line.length < 9)
                     {
                         listModel.clear();
-                        if(ab.size() == 0)
-                        {
-                            listModel.addElement("The list is empty!");
-                        }
-                        else
-                        listModel.addElement("List element not found!");
+                        listModel.addElement("Click display to refresh the entries.");
                     }
-
+                    else
+                    {
+                        String idString = line[8].replaceAll("[^0-9]", "");
+                        ab.remove(ab.searchByID(Integer.parseInt(idString)));
+                        listModel.clear();
+                        listModel.addElement("Remove successful!");
+                    }
                 }
                 catch(Exception e)
                 {
                     System.out.println("Uh oh! Remove failed!");
                 }
             }
+        });
+        findButton.addActionListener(new ActionListener(){
+        @Override
+        public void actionPerformed(ActionEvent actionEvent) {
+            JFrame findF = new JFrame();                   //consider internal frame
+            findF.setSize(300,200);
+            findF.setVisible(true);
+            findF.setResizable(false);
+
+            JPanel aPanel = new JPanel();
+            aPanel.setLayout(null);
+            findF.add(aPanel);
+            aPanel.setVisible(true);
+
+            JLabel fl;
+            JTextField ff;
+
+            fl = new JLabel("Last Name: ");
+            ff = new JTextField();
+
+            Button searchButton = new Button("Search");
+            searchButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent a)
+                {
+                    if(ff.getText().equals(""))
+                    {
+                        listModel.clear();
+                        listModel.addElement("No results found.");
+                    }
+                    else
+                    {
+                        int[] results;
+                        results = ab.searchByLast(ff.getText());
+                        listModel.clear();
+                        if(results.length == 0)
+                        {
+                            listModel.addElement("No results found.");
+                        }
+                        for(int i = 0; i < results.length; i++)
+                        {
+                            listModel.addElement(ab.show(results[i]));
+                        }
+                    }
+                    findF.setVisible(false);
+                }
+            });
+
+            fl.setLocation(25,25);
+            fl.setSize(100, 25);
+            aPanel.add(fl);
+            ff.setLocation(150, 25);
+            ff.setSize(125,25);
+            aPanel.add(ff);
+            searchButton.setSize(100, 25);
+            searchButton.setLocation(100, 100);
+            aPanel.add(searchButton);
+        }
         });
 
         JScrollPane s = new JScrollPane();
