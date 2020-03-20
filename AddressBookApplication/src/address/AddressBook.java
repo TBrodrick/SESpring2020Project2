@@ -68,7 +68,7 @@ public class AddressBook {
 
 
         // Select the all (*) from the table JAVATEST
-        String entryString1 = ae.getFirstName() + "," + ae.getLastName() + "," + ae.getStreet() + "," + ae.getCity() + "," + ae.getState() + "," + Integer.toString(ae.getZip()) + "," + ae.getTelephone() + "," + ae.getEmail() + "," + ae.getID();
+        String entryString1 = "'" + ae.getFirstName() + "','" + ae.getLastName() + "','" + ae.getStreet() + "','" + ae.getCity() + "','" + ae.getState() + "'," + Integer.toString(ae.getZip()) + ",'" + ae.getTelephone() + "','" + ae.getEmail() + "'," + Integer.toString(ae.getID());
         String entryString2 = "INSERT INTO ADDRESSENTRYTABLE VALUES(" + entryString1 + ")";
         stmt.executeUpdate(entryString2);
         ResultSet rset = stmt.executeQuery("SELECT * FROM ADDRESSENTRYTABLE");
